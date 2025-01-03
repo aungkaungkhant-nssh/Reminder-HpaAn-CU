@@ -6,7 +6,6 @@ export const remindersTable = pgTable("reminders", {
     email: varchar({ length: 255 }).notNull().unique(),
     academicYearId: integer()
         .notNull()
-        .unique()
         .references(() => academicYearsTable.id)
 });
 

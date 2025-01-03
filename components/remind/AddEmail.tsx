@@ -10,19 +10,20 @@ import {
 import { AcademicYears } from "../navbar/Navbar"
 import { BellIcon } from "lucide-react"
 import { Input } from "../ui/input"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select"
-import { Button } from "../ui/button";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
 import { useForm } from "react-hook-form";
 import { ReminderSchema } from "@/types/reminder";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from 'zod'
-import { FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage, Form } from "../ui/form"
-import { createReminder } from "@/server/action/reminders"
-import { useState } from "react";
+import { FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage, Form } from "../ui/form";
+import { useState, useTransition } from "react";
 import toast, { Toaster } from 'react-hot-toast';
+import SubmitButton from "../ui/submit-button"
+import { createReminder } from "@/server/action/reminders"
+import { handleError } from "@/utils/error-handling"
 
 export default function AddEmail({ academicYears }: { academicYears: AcademicYears[] }) {
-
+    const [isPending, startTransition] = useTransition();
     const [isOpen, setIsOpen] = useState(false);
     const form = useForm({
         resolver: zodResolver(ReminderSchema),
@@ -32,17 +33,30 @@ export default function AddEmail({ academicYears }: { academicYears: AcademicYea
         }
     })
 
+    const onSubmit = (data: z.infer<typeof ReminderSchema>) => {
+        startTransition(async () => {
+            try {
+                const name = data.email.split('@')[0];
+                const reminder = {
+                    ...data,
+                    name,
+                    academicYearId: parseInt(data.academicYearId)
+                }
+                await createReminder(reminder);
+                toast.success("Success Add Reminder Email")
+                setIsOpen(false);
+            } catch (err: any) {
+                handleError(err, {
+                    form,
+                    fieldMapping: {
+                        DUPLICATE_EMAIL: "email",
+                        INVALID_ACADEMIC_YEAR: "academicYearId",
+                    },
+                });
+            }
 
-    const onSubmit = async (data: z.infer<typeof ReminderSchema>) => {
-        const name = data.email.split('@')[0];
-        const reminder = {
-            ...data,
-            name,
-            academicYearId: parseInt(data.academicYearId)
-        }
-        await createReminder(reminder);
-        toast.success("Success Add Reminder Email")
-        setIsOpen(false);
+        })
+
 
     };
 
@@ -50,7 +64,6 @@ export default function AddEmail({ academicYears }: { academicYears: AcademicYea
         <Dialog open={isOpen} onOpenChange={setIsOpen}>
             <DialogTrigger
                 className="flex gap-2 border border-primary text-primary hover:bg-primary hover:text-white p-2 rounded-md transition duration-300 ease-in-out"
-
             >
                 <BellIcon />
                 <span>Add Reminder Email</span>
@@ -109,7 +122,7 @@ export default function AddEmail({ academicYears }: { academicYears: AcademicYea
                                     )}
                                 ></FormField>
                                 <div className="mt-4">
-                                    <Button className="w-full border border-primary text-primary hover:bg-primary hover:text-white p-2 rounded-md transition duration-300 ease-in-out" variant="outline">Submit</Button>
+                                    <SubmitButton text="Add Email" isPending={isPending} />
                                 </div>
                             </form>
 
