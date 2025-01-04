@@ -1,4 +1,4 @@
-import { integer, pgTable, varchar } from "drizzle-orm/pg-core";
+import { date, integer, pgTable, varchar } from "drizzle-orm/pg-core";
 
 export const remindersTable = pgTable("reminders", {
     id: integer().primaryKey().generatedAlwaysAsIdentity(),
@@ -21,4 +21,21 @@ export const teachersTable = pgTable("teachers", {
     academicYearId: integer()
         .notNull()
         .references(() => academicYearsTable.id)
+})
+
+export const subjectsTable = pgTable("subjects", {
+    id: integer().primaryKey().generatedAlwaysAsIdentity(),
+    code: varchar({ length: 255 }).notNull(),
+    name: varchar({ length: 255 }).notNull()
+})
+
+export const tutorialsTable = pgTable("tutorials", {
+    id: integer().primaryKey().generatedAlwaysAsIdentity(),
+    date: date().notNull(),
+    teacherId: integer()
+        .notNull()
+        .references(() => teachersTable.id),
+    subjectId: integer()
+        .notNull()
+        .references(() => subjectsTable.id)
 })

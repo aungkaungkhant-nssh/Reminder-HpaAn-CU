@@ -32,21 +32,25 @@ import { Input } from "../ui/input";
 import { DropdownMenu, DropdownMenuCheckboxItem, DropdownMenuContent, DropdownMenuTrigger } from "../ui/dropdown-menu";
 import { Button } from "../ui/button";
 import { ChevronDown } from "lucide-react";
+import { useState } from "react";
+import AddSchedule from "../schedule/AddSchedule";
 
 interface DataTableProps<TData, TValue> {
     columns: ColumnDef<TData, TValue>[]
-    data: TData[]
+    data: TData[],
+    scheduleTitle: string
 }
 
 export function DataTable<TData, TValue>({
     columns,
     data,
+    scheduleTitle
 }: DataTableProps<TData, TValue>) {
     const table = useReactTable({
         data,
         columns,
         getCoreRowModel: getCoreRowModel(),
-    })
+    });
 
     return (
         <div className="rounded-md ">
@@ -86,9 +90,7 @@ export function DataTable<TData, TValue>({
                                 })}
                         </DropdownMenuContent>
                     </DropdownMenu> */}
-                    <Button>
-                        Add New
-                    </Button>
+                    <AddSchedule scheduleTitle={scheduleTitle} />
                 </div>
 
             </div>

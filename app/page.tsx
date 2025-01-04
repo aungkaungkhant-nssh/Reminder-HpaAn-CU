@@ -1,6 +1,5 @@
 import { columns } from "@/components/data/columns";
 import { DataTable } from "@/components/data/data-table";
-import { Button } from "@/components/ui/button";
 import { TaskStatusEnum } from "@/utils/enum/TaskStatus";
 
 export default async function Home() {
@@ -27,7 +26,7 @@ export default async function Home() {
   return (
     <div className="w-[100%">
       <h1 className="text-xl font-bold text-primary">Tutorial Schedule Lists</h1>
-      <DataTable data={data} columns={columns} />
+      <DataTable data={data} columns={columns} scheduleTitle="Tutorial" />
     </div>
   );
 }

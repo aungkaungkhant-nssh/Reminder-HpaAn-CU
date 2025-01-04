@@ -7,10 +7,7 @@ import {
     DialogTitle,
     DialogTrigger,
 } from "@/components/ui/dialog"
-import { AcademicYears } from "../navbar/Navbar"
-import { BellIcon } from "lucide-react"
 import { Input } from "../ui/input"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
 import { useForm } from "react-hook-form";
 import { ReminderSchema } from "@/types/reminder";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -21,8 +18,11 @@ import toast, { Toaster } from 'react-hot-toast';
 import SubmitButton from "../ui/submit-button"
 import { createReminder } from "@/server/action/reminders"
 import { handleError } from "@/utils/error-handling"
+import { useAcademicYearStore } from "@/stores/academic-store";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
 
-export default function AddEmail({ academicYears }: { academicYears: AcademicYears[] }) {
+export default function AddSchedule({ scheduleTitle }: { scheduleTitle: string }) {
+    const { academicYears } = useAcademicYearStore();
     const [isPending, startTransition] = useTransition();
     const [isOpen, setIsOpen] = useState(false);
     const form = useForm({
@@ -45,7 +45,7 @@ export default function AddEmail({ academicYears }: { academicYears: AcademicYea
                 await createReminder(reminder);
                 toast.success("Success Add Reminder Email")
                 setIsOpen(false);
-            } catch (err: unknown) {
+            } catch (err) {
                 handleError(err, {
                     form,
                     fieldMapping: {
@@ -56,8 +56,6 @@ export default function AddEmail({ academicYears }: { academicYears: AcademicYea
             }
 
         })
-
-
     };
 
     return (
@@ -65,13 +63,13 @@ export default function AddEmail({ academicYears }: { academicYears: AcademicYea
             <DialogTrigger
                 className="flex gap-2 border border-primary text-primary hover:bg-primary hover:text-white p-2 rounded-md transition duration-300 ease-in-out"
             >
-                <BellIcon />
-                <span>Add Reminder Email</span>
+
+                <span>Add New</span>
             </DialogTrigger>
 
             <DialogContent>
                 <DialogHeader>
-                    <DialogTitle>Add Reminder Email</DialogTitle>
+                    <DialogTitle>Add {scheduleTitle}</DialogTitle>
                     <DialogDescription>
                         By adding a reminder email, you will receive notifications about tutorials, assignments, and more.
                     </DialogDescription>

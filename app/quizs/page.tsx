@@ -26,7 +26,7 @@ export default function Quizs() {
     return (
         <div>
             <h1 className="text-xl font-bold text-primary">Quiz Schedule Lists</h1>
-            <DataTable data={data} columns={columns} />
+            <DataTable data={data} columns={columns} scheduleTitle="Quiz" />
         </div>
     )
 }

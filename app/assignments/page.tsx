@@ -26,7 +26,7 @@ export default function Assignments() {
     return (
         <div>
             <h1 className="text-xl font-bold text-primary">Assignment Schedule Lists</h1>
-            <DataTable data={data} columns={columns} />
+            <DataTable data={data} columns={columns} scheduleTitle="Assignment" />
         </div>
     )
 }
