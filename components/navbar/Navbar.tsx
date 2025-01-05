@@ -1,18 +1,18 @@
 "use client"
 
-import { useAcademicYearStore } from '@/stores/academic-store';
+import { AcademicYears } from '@/stores/academic-store';
 import AddEmail from '../remind/AddEmail'
 import { useEffect } from 'react';
+import { Teachers, useTeacherStore } from '@/stores/teacher-store';
+import { Subjects, useSubjectsStore } from '@/stores/subject-store';
 
-export type AcademicYears = {
-    id: number;
-    year: string;
-}
-const Navbar = ({ academicYears }: { academicYears: AcademicYears[] }) => {
-    const { setAcademicYear } = useAcademicYearStore();
+const Navbar = ({ academicYears, subjects, teachers }: { academicYears: AcademicYears[], subjects: Subjects[], teachers: Teachers[] }) => {
+    const { setTeachers } = useTeacherStore();
+    const { setSubjects } = useSubjectsStore();
     useEffect(() => {
-        setAcademicYear(academicYears);
-    }, [academicYears, setAcademicYear]);
+        setTeachers(teachers);
+        setSubjects(subjects)
+    }, [subjects, setSubjects, teachers, setTeachers]);
     return (
         <div className='fixed right-7 top-3'>
             <AddEmail academicYears={academicYears} />

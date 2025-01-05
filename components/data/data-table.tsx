@@ -4,6 +4,7 @@ import {
     ColumnDef,
     flexRender,
     getCoreRowModel,
+    getFilteredRowModel,
     useReactTable,
 } from "@tanstack/react-table"
 
@@ -24,21 +25,15 @@ import {
     PaginationLink,
     PaginationNext,
     PaginationPrevious,
-} from "@/components/ui/pagination"
-import { Badge } from "../ui/badge";
-import { cn } from "@/lib/utils";
-import { TaskStatusEnum } from "@/utils/enum/TaskStatus";
+} from "@/components/ui/pagination";
 import { Input } from "../ui/input";
-import { DropdownMenu, DropdownMenuCheckboxItem, DropdownMenuContent, DropdownMenuTrigger } from "../ui/dropdown-menu";
-import { Button } from "../ui/button";
-import { ChevronDown } from "lucide-react";
-import { useState } from "react";
 import AddSchedule from "../schedule/AddSchedule";
+import { ScheduleEnum } from "@/utils/enum/Schedule";
 
 interface DataTableProps<TData, TValue> {
     columns: ColumnDef<TData, TValue>[]
     data: TData[],
-    scheduleTitle: string
+    scheduleTitle: ScheduleEnum
 }
 
 export function DataTable<TData, TValue>({
@@ -50,46 +45,20 @@ export function DataTable<TData, TValue>({
         data,
         columns,
         getCoreRowModel: getCoreRowModel(),
+        getFilteredRowModel: getFilteredRowModel(),
     });
-
     return (
         <div className="rounded-md ">
             <div className="flex items-center justify-between py-4">
                 <Input
                     placeholder="Search"
-                    // value={(table.getColumn("name")?.getFilterValue() as string) ?? ""}
-                    // onChange={(event) =>
-                    //     // table.getColumn("name")?.setFilterValue(event.target.value)
-                    // }
+                    value={(table.getColumn("teacher_name")?.getFilterValue() as string) ?? ""}
+                    onChange={(event) =>
+                        table.getColumn("teacher_name")?.setFilterValue(event.target.value)
+                    }
                     className="max-w-44 md:max-w-sm"
                 />
                 <div className="flex items-center gap-1">
-                    {/* <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                            <Button variant="outline" className="ml-auto">
-                                Filter <ChevronDown />
-                            </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                            {table
-                                .getAllColumns()
-                                .filter((column) => column.getCanHide())
-                                .map((column) => {
-                                    return (
-                                        <DropdownMenuCheckboxItem
-                                            key={column.id}
-                                            className="capitalize"
-                                            checked={column.getIsVisible()}
-                                            onCheckedChange={(value) =>
-                                                column.toggleVisibility(!!value)
-                                            }
-                                        >
-                                            {column.id}
-                                        </DropdownMenuCheckboxItem>
-                                    )
-                                })}
-                        </DropdownMenuContent>
-                    </DropdownMenu> */}
                     <AddSchedule scheduleTitle={scheduleTitle} />
                 </div>
 
@@ -120,31 +89,12 @@ export function DataTable<TData, TValue>({
                                 key={row.id}
                                 data-state={row.getIsSelected() && "selected"}
                             >
-                                {row.getVisibleCells().map((cell, index) => (
+                                {row.getVisibleCells().map((cell) => (
                                     <TableCell
                                         key={cell.id}
                                         className={"w-[200px]"}
                                     >
-
-                                        {cell.column.id === 'status' ? (
-                                            <Badge
-                                                className={
-                                                    cn(`
-                                                        ${cell.getContext().getValue() === TaskStatusEnum.Upcoming
-                                                            ? "bg-blue-400"
-                                                            : cell.getContext().getValue() === TaskStatusEnum.Ongoing
-                                                                ? "bg-orange-400"
-                                                                : "bg-teal-400"
-                                                        }`,
-                                                        "hover:bg-dark"
-
-                                                    )}
-                                            >
-                                                {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                                            </Badge>
-                                        ) : (
-                                            flexRender(cell.column.columnDef.cell, cell.getContext())
-                                        )}
+                                        {flexRender(cell.column.columnDef.cell, cell.getContext())}
                                     </TableCell>
                                 ))}
                             </TableRow>

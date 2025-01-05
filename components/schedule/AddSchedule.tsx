@@ -7,52 +7,51 @@ import {
     DialogTitle,
     DialogTrigger,
 } from "@/components/ui/dialog"
-import { Input } from "../ui/input"
 import { useForm } from "react-hook-form";
-import { ReminderSchema } from "@/types/reminder";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from 'zod'
-import { FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage, Form } from "../ui/form";
+import { FormControl, FormField, FormItem, FormMessage, Form } from "../ui/form";
 import { useState, useTransition } from "react";
 import toast, { Toaster } from 'react-hot-toast';
 import SubmitButton from "../ui/submit-button"
-import { createReminder } from "@/server/action/reminders"
-import { handleError } from "@/utils/error-handling"
-import { useAcademicYearStore } from "@/stores/academic-store";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
+import { useSubjectsStore } from "@/stores/subject-store";
+import { useTeacherStore } from "@/stores/teacher-store";
+import { ScheduleSchema } from "@/types/schedule";
+import DatePicker from "../ui/date-picker";
+import { handleError } from "@/utils/error-handling";
+import { createSchedule } from "@/server/action/schedule";
+import { ScheduleEnum } from "@/utils/enum/Schedule";
 
-export default function AddSchedule({ scheduleTitle }: { scheduleTitle: string }) {
-    const { academicYears } = useAcademicYearStore();
+export default function AddSchedule({ scheduleTitle }: { scheduleTitle: ScheduleEnum }) {
+    console.log(scheduleTitle)
+    const { subjects } = useSubjectsStore();
+    const { teachers } = useTeacherStore();
     const [isPending, startTransition] = useTransition();
     const [isOpen, setIsOpen] = useState(false);
     const form = useForm({
-        resolver: zodResolver(ReminderSchema),
+        resolver: zodResolver(ScheduleSchema),
         defaultValues: {
-            email: "",
-            academicYearId: "",
+            date: "",
+            teacherId: "",
+            subjectId: "",
+            type: ""
         }
     })
 
-    const onSubmit = (data: z.infer<typeof ReminderSchema>) => {
+    const onSubmit = (data: z.infer<typeof ScheduleSchema>) => {
         startTransition(async () => {
             try {
-                const name = data.email.split('@')[0];
-                const reminder = {
-                    ...data,
-                    name,
-                    academicYearId: parseInt(data.academicYearId)
-                }
-                await createReminder(reminder);
-                toast.success("Success Add Reminder Email")
+                await createSchedule({
+                    teacherId: +data.teacherId,
+                    subjectId: +data.subjectId,
+                    date: data.date,
+                    type: scheduleTitle
+                })
+                toast.success("Success Add Schedule")
                 setIsOpen(false);
             } catch (err) {
-                handleError(err, {
-                    form,
-                    fieldMapping: {
-                        DUPLICATE_EMAIL: "email",
-                        INVALID_ACADEMIC_YEAR: "academicYearId",
-                    },
-                });
+                handleError(err);
             }
 
         })
@@ -71,45 +70,80 @@ export default function AddSchedule({ scheduleTitle }: { scheduleTitle: string }
                 <DialogHeader>
                     <DialogTitle>Add {scheduleTitle}</DialogTitle>
                     <DialogDescription>
-                        By adding a reminder email, you will receive notifications about tutorials, assignments, and more.
+                        You may select the date, teacher, and subject for the schedule.
                     </DialogDescription>
                     <div className="my-5">
                         <Form {...form} >
                             <form onSubmit={form.handleSubmit(onSubmit)}>
                                 <FormField
                                     control={form.control}
-                                    name="email"
+                                    name="date"
                                     render={({ field }) => (
                                         <FormItem>
-                                            <FormLabel htmlFor="email">Email:</FormLabel>
                                             <FormControl>
-                                                <Input id="email"  {...field} placeholder="example@gmail.com" />
+                                                <DatePicker
+                                                    value={field.value ? new Date(field.value) : undefined}
+                                                    onChange={(date) => field.onChange(date?.toDateString())}
+                                                    placeholder="Select Date"
+                                                />
                                             </FormControl>
-                                            <FormDescription />
                                             <FormMessage />
                                         </FormItem>
+
                                     )}
                                 >
+
                                 </FormField>
+                                <div className="my-3">
+                                    <FormField
+                                        control={form.control}
+                                        name="teacherId"
+                                        render={({ field }) => (
+                                            <FormItem>
+                                                <FormControl>
+                                                    <Select
+                                                        value={field.value}
+                                                        onValueChange={(selectedId) => {
+                                                            field.onChange(selectedId);
+                                                        }}
+                                                    >
+                                                        <SelectTrigger className="w">
+                                                            <SelectValue placeholder="Select Teacher" />
+                                                        </SelectTrigger>
+                                                        <SelectContent>
+                                                            {teachers.map((teacher) => (
+                                                                <SelectItem key={teacher.id} value={teacher.id.toString()}>
+                                                                    {teacher.name}
+                                                                </SelectItem>
+                                                            ))}
+                                                        </SelectContent>
+                                                    </Select>
+                                                </FormControl>
+                                                <FormMessage />
+                                            </FormItem>
+                                        )}
+                                    ></FormField>
+                                </div>
+
                                 <FormField
                                     control={form.control}
-                                    name="academicYearId"
+                                    name="subjectId"
                                     render={({ field }) => (
                                         <FormItem>
                                             <FormControl>
                                                 <Select
                                                     value={field.value}
                                                     onValueChange={(selectedId) => {
-                                                        field.onChange(selectedId); // Update academicYearId in the form
+                                                        field.onChange(selectedId);
                                                     }}
                                                 >
                                                     <SelectTrigger className="w">
-                                                        <SelectValue placeholder="Select Academic Year" />
+                                                        <SelectValue placeholder="Select Subject" />
                                                     </SelectTrigger>
                                                     <SelectContent>
-                                                        {academicYears.map((academicYear) => (
-                                                            <SelectItem key={academicYear.id} value={academicYear.id.toString()}>
-                                                                {academicYear.year}
+                                                        {subjects.map((subject) => (
+                                                            <SelectItem key={subject.id} value={subject.id.toString()}>
+                                                                {subject.code} - {subject.name}
                                                             </SelectItem>
                                                         ))}
                                                     </SelectContent>
@@ -120,7 +154,7 @@ export default function AddSchedule({ scheduleTitle }: { scheduleTitle: string }
                                     )}
                                 ></FormField>
                                 <div className="mt-4">
-                                    <SubmitButton text="Add Email" isPending={isPending} />
+                                    <SubmitButton text="Add Schedule" isPending={isPending} />
                                 </div>
                             </form>
 

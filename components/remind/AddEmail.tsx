@@ -7,7 +7,6 @@ import {
     DialogTitle,
     DialogTrigger,
 } from "@/components/ui/dialog"
-import { AcademicYears } from "../navbar/Navbar"
 import { BellIcon } from "lucide-react"
 import { Input } from "../ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
@@ -21,6 +20,7 @@ import toast, { Toaster } from 'react-hot-toast';
 import SubmitButton from "../ui/submit-button"
 import { createReminder } from "@/server/action/reminders"
 import { handleError } from "@/utils/error-handling"
+import { AcademicYears } from "@/stores/academic-store";
 
 export default function AddEmail({ academicYears }: { academicYears: AcademicYears[] }) {
     const [isPending, startTransition] = useTransition();

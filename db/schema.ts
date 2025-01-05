@@ -1,4 +1,5 @@
-import { date, integer, pgTable, varchar } from "drizzle-orm/pg-core";
+import { date, integer, pgEnum, pgTable, varchar } from "drizzle-orm/pg-core";
+export const typesEnum = pgEnum("types", ["Tutorial", "Assignment", "Quiz", "Presentation"]);
 
 export const remindersTable = pgTable("reminders", {
     id: integer().primaryKey().generatedAlwaysAsIdentity(),
@@ -29,7 +30,7 @@ export const subjectsTable = pgTable("subjects", {
     name: varchar({ length: 255 }).notNull()
 })
 
-export const tutorialsTable = pgTable("tutorials", {
+export const schedulesTable = pgTable("schedules", {
     id: integer().primaryKey().generatedAlwaysAsIdentity(),
     date: date().notNull(),
     teacherId: integer()
@@ -37,5 +38,6 @@ export const tutorialsTable = pgTable("tutorials", {
         .references(() => teachersTable.id),
     subjectId: integer()
         .notNull()
-        .references(() => subjectsTable.id)
+        .references(() => subjectsTable.id),
+    type: typesEnum().notNull()
 })

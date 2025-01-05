@@ -5,6 +5,8 @@ import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar"
 import { AppSidebar } from "@/components/sidebar/AppSidebar"
 import { getAcademicYears } from "@/server/action/academic-years";
 import Navbar from "@/components/navbar/Navbar";
+import { getSubjects } from "@/server/action/subjects";
+import { getTeachers } from "@/server/action/teachers";
 
 
 const geistSans = Geist({
@@ -28,13 +30,19 @@ export default async function RootLayout({
   children: React.ReactNode;
 }>) {
   const academicYears = await getAcademicYears();
+  const subjects = await getSubjects();
+  const teachers = await getTeachers();
   return (
     <html lang="en">
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
         <SidebarProvider>
           <AppSidebar />
           <SidebarTrigger />
-          <Navbar academicYears={academicYears} />
+          <Navbar
+            academicYears={academicYears}
+            subjects={subjects}
+            teachers={teachers}
+          />
           <div className="my-[80px] mx-[8px] md:mx-[30px] lg:mx-[180px]">
             {children}
           </div>
