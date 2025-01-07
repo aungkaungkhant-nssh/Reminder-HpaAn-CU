@@ -11,7 +11,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from 'zod'
 import { FormControl, FormField, FormItem, FormMessage, Form } from "../ui/form";
-import { useState, useTransition } from "react";
+import { useEffect, useTransition } from "react";
 import toast, { Toaster } from 'react-hot-toast';
 import SubmitButton from "../ui/submit-button"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
@@ -22,13 +22,14 @@ import DatePicker from "../ui/date-picker";
 import { handleError } from "@/utils/error-handling";
 import { createSchedule } from "@/server/action/schedule";
 import { ScheduleEnum } from "@/utils/enum/Schedule";
+import { useScheduleModelStore } from "@/stores/schedule-model-store";
 
 export default function AddSchedule({ scheduleTitle }: { scheduleTitle: ScheduleEnum }) {
-    console.log(scheduleTitle)
     const { subjects } = useSubjectsStore();
     const { teachers } = useTeacherStore();
     const [isPending, startTransition] = useTransition();
-    const [isOpen, setIsOpen] = useState(false);
+    const { isOpen, isEdit, id, showModel } = useScheduleModelStore()
+
     const form = useForm({
         resolver: zodResolver(ScheduleSchema),
         defaultValues: {
@@ -49,7 +50,11 @@ export default function AddSchedule({ scheduleTitle }: { scheduleTitle: Schedule
                     type: scheduleTitle
                 })
                 toast.success("Success Add Schedule")
-                setIsOpen(false);
+                showModel({
+                    isOpen: false,
+                    isEdit: false,
+                    id: null
+                });
             } catch (err) {
                 handleError(err);
             }
@@ -57,8 +62,36 @@ export default function AddSchedule({ scheduleTitle }: { scheduleTitle: Schedule
         })
     };
 
+    const checkSchedule = async (isEdit: boolean, id: number) => {
+        if (isEdit) {
+            // const data = await getProduct(id);
+            // if (data.error) {
+            //     toast.error(data.error)
+            //     router.push("/dashboard/products")
+            //     return
+            // }
+
+            // if (data.success) {
+            //     form.setValue("id", id)
+            //     form.setValue("title", data.success.title)
+            //     form.setValue("description", data.success.description);
+            //     form.setValue("price", data.success.price);
+            // }
+        }
+    }
+    useEffect(() => {
+        if (isEdit && id) {
+            checkSchedule(isEdit, id)
+        }
+    }, [])
+
     return (
-        <Dialog open={isOpen} onOpenChange={setIsOpen}>
+        <Dialog open={isOpen}
+            onOpenChange={(open) => showModel({
+                isOpen: open,
+                isEdit: false,
+                id: null
+            })}>
             <DialogTrigger
                 className="flex gap-2 border border-primary text-primary hover:bg-primary hover:text-white p-2 rounded-md transition duration-300 ease-in-out"
             >
@@ -68,7 +101,7 @@ export default function AddSchedule({ scheduleTitle }: { scheduleTitle: Schedule
 
             <DialogContent>
                 <DialogHeader>
-                    <DialogTitle>Add {scheduleTitle}</DialogTitle>
+                    <DialogTitle>{isEdit ? "Edit" : "Add"} {scheduleTitle}</DialogTitle>
                     <DialogDescription>
                         You may select the date, teacher, and subject for the schedule.
                     </DialogDescription>
@@ -167,3 +200,4 @@ export default function AddSchedule({ scheduleTitle }: { scheduleTitle: Schedule
         </Dialog>
     )
 }
+

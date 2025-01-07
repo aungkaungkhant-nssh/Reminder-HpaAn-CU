@@ -1,5 +1,5 @@
 "use client"
-import { ColumnDef } from "@tanstack/react-table"
+import { ColumnDef, Row } from "@tanstack/react-table"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem } from "../ui/dropdown-menu"
 import { DropdownMenuSeparator, DropdownMenuTrigger } from "@radix-ui/react-dropdown-menu"
 import { Button } from "../ui/button"
@@ -9,6 +9,10 @@ import { ScheduleEnum } from "@/utils/enum/Schedule"
 import { Badge } from "../ui/badge"
 import { cn } from "@/lib/utils"
 import { TaskStatusEnum } from "@/utils/enum/TaskStatus"
+import { deleteSchedule } from "@/server/action/schedule"
+import toast from "react-hot-toast"
+import { useRouter, useSearchParams } from 'next/navigation';
+import { useScheduleModelStore } from "@/stores/schedule-model-store"
 
 export type Teacher = {
     id: number,
@@ -30,6 +34,57 @@ export type Schedule = {
     teacher: Teacher | null,
     subject: Subject | null,
 
+}
+
+const ActionCell = ({ row }: { row: Row<Schedule> }) => {
+    const router = useRouter();
+    const searchParams = useSearchParams();
+    const { showModel } = useScheduleModelStore()
+    const scheduleId = row.original.scheduleId;
+    const handleDelete = async () => {
+        try {
+            await deleteSchedule(scheduleId);
+            toast("Success Delete Schedule")
+        } catch {
+            toast("Unexpected Error occur")
+        }
+    }
+    return (
+        <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+                <Button variant="outline" className="h-10 w-10 p-1 rounded-md hover:bg-gray-100">
+                    <span className="sr-only">Open menu</span>
+                    <MoreHorizontal />
+                </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="rounded-md shadow-lg p-2 bg-white border border-gray-200">
+                <DropdownMenuItem
+                    className="cursor-pointer flex items-center gap-2 px-3 py-2 rounded-md hover:bg-gray-100"
+                    onClick={() => {
+                        // const params = new URLSearchParams(searchParams.toString());
+                        // params.set('id', scheduleId.toString());
+                        // router.push(`?${params.toString()}`, { scroll: false });
+                        showModel({
+                            isOpen: true,
+                            isEdit: true,
+                            id: scheduleId
+                        })
+
+                    }}
+                >
+                    ✏️ Edit Schedule
+                </DropdownMenuItem>
+                <DropdownMenuSeparator className="my-1 h-px bg-gray-200" />
+                <DropdownMenuItem
+                    className="cursor-pointer flex items-center gap-2 px-3 py-2 rounded-md hover:bg-red-100 text-red-600"
+                    onClick={handleDelete}
+                >
+                    🗑️ Delete Schedule
+                </DropdownMenuItem>
+            </DropdownMenuContent>
+        </DropdownMenu>
+
+    )
 }
 
 export const columns: ColumnDef<Schedule>[] = [
@@ -118,30 +173,6 @@ export const columns: ColumnDef<Schedule>[] = [
     {
         id: "actions",
         enableHiding: false,
-        cell: () => {
-            return (
-                <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" className="h-8 w-8 p-0">
-                            <span className="sr-only">Open menu</span>
-                            <MoreHorizontal />
-                        </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                        <DropdownMenuItem
-                            className="cursor-pointer"
-                        >
-                            Edit Schedule
-                        </DropdownMenuItem>
-                        <DropdownMenuSeparator />
-                        <DropdownMenuItem
-                            className="cursor-pointer"
-                        >
-                            Delete Schedule
-                        </DropdownMenuItem>
-                    </DropdownMenuContent>
-                </DropdownMenu>
-            )
-        },
+        cell: ActionCell
     }
 ]

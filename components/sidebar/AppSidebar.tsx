@@ -33,7 +33,7 @@ const items = [
     {
 
         title: "Presentations",
-        url: "presentations",
+        url: "/presentations",
         icon: Monitor,
     }
 ]
@@ -41,7 +41,7 @@ const items = [
 export function AppSidebar() {
     const pathName = usePathname();
     return (
-        <Sidebar>
+        <Sidebar variant="inset">
             <SidebarContent>
                 <SidebarGroup>
                     <h1 className="text-primary font-bold text-xl mb-7">Reminder Hpa An (CU)</h1>

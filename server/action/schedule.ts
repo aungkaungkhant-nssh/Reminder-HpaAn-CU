@@ -46,3 +46,12 @@ export const getSchedules = async (type: ScheduleEnum): Promise<Schedule[]> => {
         type: schedule.type as ScheduleEnum
     }));
 }
+
+export const deleteSchedule = async (id: number) => {
+    try {
+        await db.delete(schedulesTable).where(eq(schedulesTable.id, id));
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (err: any) {
+        throw new Error(JSON.stringify({ type: "UNKNOWN_ERROR", message: err.detail || "An unexpected error occurred." }));
+    }
+}

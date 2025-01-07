@@ -48,7 +48,7 @@ export function DataTable<TData, TValue>({
         getFilteredRowModel: getFilteredRowModel(),
     });
     return (
-        <div className="rounded-md ">
+        <div className="rounded-md  w-full">
             <div className="flex items-center justify-between py-4">
                 <Input
                     placeholder="Search"

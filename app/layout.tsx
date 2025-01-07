@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar"
+import { SidebarInset, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar"
 import { AppSidebar } from "@/components/sidebar/AppSidebar"
 import { getAcademicYears } from "@/server/action/academic-years";
 import Navbar from "@/components/navbar/Navbar";
@@ -38,15 +38,21 @@ export default async function RootLayout({
         <SidebarProvider>
           <AppSidebar />
           <SidebarTrigger />
-          <Navbar
-            academicYears={academicYears}
-            subjects={subjects}
-            teachers={teachers}
-          />
-          <div className="my-[80px] mx-[8px] md:mx-[30px] lg:mx-[180px]">
-            {children}
-          </div>
+          <SidebarInset>
+            <div className="my-[80px] mx-[8px] md:mx-[30px] lg:mx-[180px]">
+              <Navbar
+                academicYears={academicYears}
+                subjects={subjects}
+                teachers={teachers}
+              />
+              {children}
+            </div>
+          </SidebarInset>
+
         </SidebarProvider>
+        {/* <div className="my-[80px] mx-[8px] md:mx-[30px] lg:mx-[180px]">
+          {children}
+        </div> */}
       </body>
     </html>
   );
