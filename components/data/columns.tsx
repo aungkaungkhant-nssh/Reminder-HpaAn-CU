@@ -11,7 +11,6 @@ import { cn } from "@/lib/utils"
 import { TaskStatusEnum } from "@/utils/enum/TaskStatus"
 import { deleteSchedule } from "@/server/action/schedule"
 import toast from "react-hot-toast"
-import { useRouter, useSearchParams } from 'next/navigation';
 import { useScheduleModelStore } from "@/stores/schedule-model-store"
 
 export type Teacher = {
@@ -37,8 +36,6 @@ export type Schedule = {
 }
 
 const ActionCell = ({ row }: { row: Row<Schedule> }) => {
-    const router = useRouter();
-    const searchParams = useSearchParams();
     const { showModel } = useScheduleModelStore()
     const scheduleId = row.original.scheduleId;
     const handleDelete = async () => {

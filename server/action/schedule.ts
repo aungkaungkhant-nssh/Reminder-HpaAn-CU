@@ -18,6 +18,16 @@ export const createSchedule = async (data: NewSchedule) => {
     }
 }
 
+export const updateSchedule = async (id: number, data: NewSchedule) => {
+    try {
+        await db.update(schedulesTable).set(data).where(eq(schedulesTable.id, id));
+        
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (err: any) {
+        throw new Error(JSON.stringify({ type: "UNKNOWN_ERROR", message: err.detail || "An unexpected error occurred." }));
+    }
+}
+
 export const getSchedules = async (type: ScheduleEnum): Promise<Schedule[]> => {
     const schedulesWithRelations = await db
         .select({
@@ -45,6 +55,36 @@ export const getSchedules = async (type: ScheduleEnum): Promise<Schedule[]> => {
         ...schedule,
         type: schedule.type as ScheduleEnum
     }));
+}
+
+export const getSchedule = async (id: number) => {
+    try {
+        const schedule = await db.select({
+            scheduleId: schedulesTable.id,
+            date: schedulesTable.date,
+            type: schedulesTable.type,
+            teacher: {
+                id: teachersTable.id,
+                name: teachersTable.name,
+                phone: teachersTable.phone,
+                academicYearId: teachersTable.academicYearId,
+            },
+            subject: {
+                id: subjectsTable.id,
+                code: subjectsTable.code,
+                name: subjectsTable.name,
+            },
+        })
+            .from(schedulesTable)
+            .leftJoin(teachersTable, eq(schedulesTable.teacherId, teachersTable.id)) // Join teachersTable
+            .leftJoin(subjectsTable, eq(schedulesTable.subjectId, subjectsTable.id)) // Join subjectsTable
+            .where(eq(schedulesTable.id, id));
+
+        return schedule;
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (err: any) {
+        throw new Error(JSON.stringify({ type: "UNKNOWN_ERROR", message: err.detail || "An unexpected error occurred." }));
+    }
 }
 
 export const deleteSchedule = async (id: number) => {

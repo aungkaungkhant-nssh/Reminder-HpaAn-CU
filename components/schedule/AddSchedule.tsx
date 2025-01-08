@@ -20,7 +20,7 @@ import { useTeacherStore } from "@/stores/teacher-store";
 import { ScheduleSchema } from "@/types/schedule";
 import DatePicker from "../ui/date-picker";
 import { handleError } from "@/utils/error-handling";
-import { createSchedule } from "@/server/action/schedule";
+import { createSchedule, getSchedule, updateSchedule } from "@/server/action/schedule";
 import { ScheduleEnum } from "@/utils/enum/Schedule";
 import { useScheduleModelStore } from "@/stores/schedule-model-store";
 
@@ -28,7 +28,7 @@ export default function AddSchedule({ scheduleTitle }: { scheduleTitle: Schedule
     const { subjects } = useSubjectsStore();
     const { teachers } = useTeacherStore();
     const [isPending, startTransition] = useTransition();
-    const { isOpen, isEdit, id, showModel } = useScheduleModelStore()
+    const { isOpen, isEdit, id, showModel } = useScheduleModelStore();
 
     const form = useForm({
         resolver: zodResolver(ScheduleSchema),
@@ -43,13 +43,23 @@ export default function AddSchedule({ scheduleTitle }: { scheduleTitle: Schedule
     const onSubmit = (data: z.infer<typeof ScheduleSchema>) => {
         startTransition(async () => {
             try {
-                await createSchedule({
-                    teacherId: +data.teacherId,
-                    subjectId: +data.subjectId,
-                    date: data.date,
-                    type: scheduleTitle
-                })
-                toast.success("Success Add Schedule")
+                if (isEdit && id) {
+                    await updateSchedule(id, {
+                        teacherId: +data.teacherId,
+                        subjectId: +data.subjectId,
+                        date: data.date,
+                        type: scheduleTitle
+                    })
+                } else {
+                    await createSchedule({
+                        teacherId: +data.teacherId,
+                        subjectId: +data.subjectId,
+                        date: data.date,
+                        type: scheduleTitle
+                    })
+                }
+
+                toast.success(`Success ${isEdit ? "Update" : "Add"} Schedule`)
                 showModel({
                     isOpen: false,
                     isEdit: false,
@@ -64,26 +74,20 @@ export default function AddSchedule({ scheduleTitle }: { scheduleTitle: Schedule
 
     const checkSchedule = async (isEdit: boolean, id: number) => {
         if (isEdit) {
-            // const data = await getProduct(id);
-            // if (data.error) {
-            //     toast.error(data.error)
-            //     router.push("/dashboard/products")
-            //     return
-            // }
-
-            // if (data.success) {
-            //     form.setValue("id", id)
-            //     form.setValue("title", data.success.title)
-            //     form.setValue("description", data.success.description);
-            //     form.setValue("price", data.success.price);
-            // }
+            const schedule = await getSchedule(id);
+            if (schedule.length) {
+                form.setValue("date", schedule[0].date)
+                form.setValue("teacherId", schedule[0]?.teacher ? schedule[0].teacher.id.toString() : "")
+                form.setValue("subjectId", schedule[0]?.subject ? schedule[0].subject.id.toString() : "")
+                form.setValue("type", schedule[0].type)
+            }
         }
     }
     useEffect(() => {
         if (isEdit && id) {
             checkSchedule(isEdit, id)
         }
-    }, [])
+    }, [isEdit, id])
 
     return (
         <Dialog open={isOpen}
@@ -95,7 +99,6 @@ export default function AddSchedule({ scheduleTitle }: { scheduleTitle: Schedule
             <DialogTrigger
                 className="flex gap-2 border border-primary text-primary hover:bg-primary hover:text-white p-2 rounded-md transition duration-300 ease-in-out"
             >
-
                 <span>Add New</span>
             </DialogTrigger>
 
@@ -187,7 +190,7 @@ export default function AddSchedule({ scheduleTitle }: { scheduleTitle: Schedule
                                     )}
                                 ></FormField>
                                 <div className="mt-4">
-                                    <SubmitButton text="Add Schedule" isPending={isPending} />
+                                    <SubmitButton text={`${isEdit ? 'Update' : 'Add'} Schedule`} isPending={isPending} />
                                 </div>
                             </form>
 
