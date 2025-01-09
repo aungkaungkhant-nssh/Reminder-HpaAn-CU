@@ -58,9 +58,6 @@ const ActionCell = ({ row }: { row: Row<Schedule> }) => {
                 <DropdownMenuItem
                     className="cursor-pointer flex items-center gap-2 px-3 py-2 rounded-md hover:bg-gray-100"
                     onClick={() => {
-                        // const params = new URLSearchParams(searchParams.toString());
-                        // params.set('id', scheduleId.toString());
-                        // router.push(`?${params.toString()}`, { scroll: false });
                         showModel({
                             isOpen: true,
                             isEdit: true,
@@ -110,13 +107,17 @@ export const columns: ColumnDef<Schedule>[] = [
     {
         accessorKey: "date",
         header: "Date",
+        cell: ({ row }) => {
+            return (
+                <h3 className="text-sm font-black text-primary">{row.getValue("date")}</h3>
+            )
+        }
     },
     {
         accessorKey: "teacher.name",
         header: "Teacher",
         cell: (info) => info.getValue() || "No Teacher",
         filterFn: (row, id, filterValue) => {
-
             const teacherName = row.getValue("teacher_name") as string;
             return teacherName.toLowerCase().includes(filterValue.toLowerCase());
         },

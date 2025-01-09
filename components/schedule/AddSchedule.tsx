@@ -91,11 +91,22 @@ export default function AddSchedule({ scheduleTitle }: { scheduleTitle: Schedule
 
     return (
         <Dialog open={isOpen}
-            onOpenChange={(open) => showModel({
-                isOpen: open,
-                isEdit: false,
-                id: null
-            })}>
+            onOpenChange={(open) => {
+                if (isEdit && id) {
+                    form.setValue("date", "")
+                    form.setValue("teacherId", "")
+                    form.setValue("subjectId", "")
+                    form.setValue("type", "")
+                }
+                showModel({
+                    isOpen: open,
+                    isEdit: false,
+                    id: null
+                })
+            }
+            }
+
+        >
             <DialogTrigger
                 className="flex gap-2 border border-primary text-primary hover:bg-primary hover:text-white p-2 rounded-md transition duration-300 ease-in-out"
             >
@@ -120,7 +131,7 @@ export default function AddSchedule({ scheduleTitle }: { scheduleTitle: Schedule
                                                 <DatePicker
                                                     value={field.value ? new Date(field.value) : undefined}
                                                     onChange={(date) => field.onChange(date?.toDateString())}
-                                                    placeholder="Select Date"
+                                                    placeholder={(isEdit && id && !form.getValues().teacherId) ? "Loading..." : "Select a date"}
                                                 />
                                             </FormControl>
                                             <FormMessage />
@@ -144,7 +155,7 @@ export default function AddSchedule({ scheduleTitle }: { scheduleTitle: Schedule
                                                         }}
                                                     >
                                                         <SelectTrigger className="w">
-                                                            <SelectValue placeholder="Select Teacher" />
+                                                            <SelectValue placeholder={(isEdit && id && !form.getValues().teacherId) ? "Loading..." : "Select a teacher"} />
                                                         </SelectTrigger>
                                                         <SelectContent>
                                                             {teachers.map((teacher) => (
@@ -174,7 +185,7 @@ export default function AddSchedule({ scheduleTitle }: { scheduleTitle: Schedule
                                                     }}
                                                 >
                                                     <SelectTrigger className="w">
-                                                        <SelectValue placeholder="Select Subject" />
+                                                        <SelectValue placeholder={(isEdit && id && !form.getValues().teacherId) ? "Loading..." : "Select a Subject"} />
                                                     </SelectTrigger>
                                                     <SelectContent>
                                                         {subjects.map((subject) => (

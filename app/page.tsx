@@ -8,7 +8,12 @@ export default async function Home() {
   return (
     <div className="w-[100%]">
       <h1 className="text-xl font-bold text-primary">Tutorial Schedule Lists</h1>
-      <DataTable data={tutorialSchedules} columns={columns} scheduleTitle={ScheduleEnum.Tutorial} />
+      <DataTable
+        data={tutorialSchedules.items}
+        columns={columns}
+        scheduleTitle={ScheduleEnum.Tutorial}
+        totalCount={tutorialSchedules.totalCount}
+      />
     </div>
   );
 }

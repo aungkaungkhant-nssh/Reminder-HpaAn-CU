@@ -33,13 +33,15 @@ import { ScheduleEnum } from "@/utils/enum/Schedule";
 interface DataTableProps<TData, TValue> {
     columns: ColumnDef<TData, TValue>[]
     data: TData[],
-    scheduleTitle: ScheduleEnum
+    scheduleTitle: ScheduleEnum,
+    totalCount: number
 }
 
 export function DataTable<TData, TValue>({
     columns,
     data,
-    scheduleTitle
+    scheduleTitle,
+    totalCount
 }: DataTableProps<TData, TValue>) {
     const table = useReactTable({
         data,
@@ -47,6 +49,8 @@ export function DataTable<TData, TValue>({
         getCoreRowModel: getCoreRowModel(),
         getFilteredRowModel: getFilteredRowModel(),
     });
+    const totalPages = Math.ceil(totalCount / 2);
+    console.log(totalPages)
     return (
         <div className="rounded-md  w-full">
             <div className="flex items-center justify-between py-4">
@@ -112,16 +116,20 @@ export function DataTable<TData, TValue>({
                 <Pagination>
                     <PaginationContent>
                         <PaginationItem>
-                            <PaginationPrevious href="#" />
+                            <PaginationPrevious />
                         </PaginationItem>
+                        {[...Array(totalPages)].map((_, index) => (
+                            <PaginationItem key={index}>
+                                <PaginationLink
+                                // onClick={() => handlePageChange(index + 1)}
+                                // className={currentPage === index + 1 ? "font-bold" : ""}
+                                >
+                                    {index + 1}
+                                </PaginationLink>
+                            </PaginationItem>
+                        ))}
                         <PaginationItem>
-                            <PaginationLink href="#">1</PaginationLink>
-                        </PaginationItem>
-                        <PaginationItem>
-                            <PaginationEllipsis />
-                        </PaginationItem>
-                        <PaginationItem>
-                            <PaginationNext href="#" />
+                            <PaginationNext />
                         </PaginationItem>
                     </PaginationContent>
                 </Pagination>
