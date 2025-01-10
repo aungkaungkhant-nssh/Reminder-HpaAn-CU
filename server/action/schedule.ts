@@ -31,6 +31,7 @@ export const updateSchedule = async (id: number, data: NewSchedule) => {
 }
 
 export const getSchedules = async (type: ScheduleEnum, page: number = 1, limit: number = 2): Promise<{ items: Schedule[]; totalCount: number }> => {
+    console.log(page)
     const offset = (page - 1) * limit;
     const schedulesWithRelations = await db
         .select({
@@ -63,14 +64,12 @@ export const getSchedules = async (type: ScheduleEnum, page: number = 1, limit: 
         .where(eq(schedulesTable.type, type));
 
 
-
     return {
         items: schedulesWithRelations.map(schedule => ({
             ...schedule,
             type: schedule.type as ScheduleEnum,
-            // count: schedule[0].count
         })),
-        totalCount: schedule[0].count
+        totalCount: schedule[0].count,
     };
 }
 

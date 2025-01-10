@@ -20,7 +20,6 @@ import {
 import {
     Pagination,
     PaginationContent,
-    PaginationEllipsis,
     PaginationItem,
     PaginationLink,
     PaginationNext,
@@ -34,14 +33,16 @@ interface DataTableProps<TData, TValue> {
     columns: ColumnDef<TData, TValue>[]
     data: TData[],
     scheduleTitle: ScheduleEnum,
-    totalCount: number
+    totalCount: number,
+    currentPage: number
 }
 
 export function DataTable<TData, TValue>({
     columns,
     data,
     scheduleTitle,
-    totalCount
+    totalCount,
+    currentPage
 }: DataTableProps<TData, TValue>) {
     const table = useReactTable({
         data,
@@ -50,7 +51,6 @@ export function DataTable<TData, TValue>({
         getFilteredRowModel: getFilteredRowModel(),
     });
     const totalPages = Math.ceil(totalCount / 2);
-    console.log(totalPages)
     return (
         <div className="rounded-md  w-full">
             <div className="flex items-center justify-between py-4">
@@ -121,8 +121,8 @@ export function DataTable<TData, TValue>({
                         {[...Array(totalPages)].map((_, index) => (
                             <PaginationItem key={index}>
                                 <PaginationLink
-                                // onClick={() => handlePageChange(index + 1)}
-                                // className={currentPage === index + 1 ? "font-bold" : ""}
+                                    href={`?page=${index + 1}`}
+                                    className={currentPage === index + 1 ? "font-bold" : ""}
                                 >
                                     {index + 1}
                                 </PaginationLink>
