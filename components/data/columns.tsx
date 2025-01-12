@@ -4,7 +4,6 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem } from "../ui/dropd
 import { DropdownMenuSeparator, DropdownMenuTrigger } from "@radix-ui/react-dropdown-menu"
 import { Button } from "../ui/button"
 import { MoreHorizontal } from "lucide-react"
-import { Checkbox } from "../ui/checkbox"
 import { ScheduleEnum } from "@/utils/enum/Schedule"
 import { Badge } from "../ui/badge"
 import { cn } from "@/lib/utils"
@@ -12,6 +11,7 @@ import { TaskStatusEnum } from "@/utils/enum/TaskStatus"
 import { deleteSchedule } from "@/server/action/schedule"
 import toast from "react-hot-toast"
 import { useScheduleModelStore } from "@/stores/schedule-model-store"
+import AddNote from "../note/AddNote"
 
 export type Teacher = {
     id: number,
@@ -82,28 +82,28 @@ const ActionCell = ({ row }: { row: Row<Schedule> }) => {
 }
 
 export const columns: ColumnDef<Schedule>[] = [
-    {
-        id: "select",
-        header: ({ table }) => (
-            <Checkbox
-                checked={
-                    table.getIsAllPageRowsSelected() ||
-                    (table.getIsSomePageRowsSelected() && "indeterminate")
-                }
-                onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
-                aria-label="Select all"
-            />
-        ),
-        cell: ({ row }) => (
-            <Checkbox
-                checked={row.getIsSelected()}
-                onCheckedChange={(value) => row.toggleSelected(!!value)}
-                aria-label="Select row"
-            />
-        ),
-        enableSorting: false,
-        enableHiding: false,
-    },
+    // {
+    //     id: "select",
+    //     header: ({ table }) => (
+    //         <Checkbox
+    //             checked={
+    //                 table.getIsAllPageRowsSelected() ||
+    //                 (table.getIsSomePageRowsSelected() && "indeterminate")
+    //             }
+    //             onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
+    //             aria-label="Select all"
+    //         />
+    //     ),
+    //     cell: ({ row }) => (
+    //         <Checkbox
+    //             checked={row.getIsSelected()}
+    //             onCheckedChange={(value) => row.toggleSelected(!!value)}
+    //             aria-label="Select row"
+    //         />
+    //     ),
+    //     enableSorting: false,
+    //     enableHiding: false,
+    // },
     {
         accessorKey: "date",
         header: "Date",
@@ -165,6 +165,15 @@ export const columns: ColumnDef<Schedule>[] = [
                                 : TaskStatusEnum.Completed
                     }
                 </Badge>
+            )
+        }
+    },
+    {
+        accessorKey: "note",
+        header: "Note",
+        cell: ({ row }) => {
+            return (
+                <AddNote scheduleId={row.original.scheduleId} />
             )
         }
     },

@@ -10,7 +10,7 @@ export interface Props {
 }
 
 export default async function Home({ searchParams }: Props) {
-  const currentPage = +searchParams.page;
+  const currentPage = +searchParams?.page || 1;
   const tutorialSchedules = await getSchedules(ScheduleEnum.Tutorial, currentPage);
 
   return (
@@ -20,7 +20,7 @@ export default async function Home({ searchParams }: Props) {
         data={tutorialSchedules.items}
         columns={columns}
         scheduleTitle={ScheduleEnum.Tutorial}
-        totalCount={tutorialSchedules.totalCount}
+        meta={tutorialSchedules.meta}
         currentPage={currentPage}
       />
     </div>

@@ -3,6 +3,7 @@
 import { Schedule } from "@/components/data/columns";
 import { db } from "@/db"
 import { schedulesTable, subjectsTable, teachersTable } from "@/db/schema";
+import { LIMIT } from "@/utils/constant/limit";
 import { ScheduleEnum } from "@/utils/enum/Schedule";
 import { asc, count, eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
@@ -30,9 +31,19 @@ export const updateSchedule = async (id: number, data: NewSchedule) => {
     }
 }
 
-export const getSchedules = async (type: ScheduleEnum, page: number = 1, limit: number = 2): Promise<{ items: Schedule[]; totalCount: number }> => {
-    console.log(page)
+export const getSchedules = async (type: ScheduleEnum, page: number = 1, limit: number = LIMIT): Promise<{ items: Schedule[]; meta: { totalCount: number, hasNextPage: boolean } }> => {
     const offset = (page - 1) * limit;
+
+    const data = await db.query.schedulesTable.findMany({
+        with: {
+            teacher: true,
+            subject: true,
+            notes: true
+        }
+    })
+
+    console.log(data)
+
     const schedulesWithRelations = await db
         .select({
             scheduleId: schedulesTable.id,
@@ -49,6 +60,8 @@ export const getSchedules = async (type: ScheduleEnum, page: number = 1, limit: 
                 code: subjectsTable.code,
                 name: subjectsTable.name,
             },
+
+
         })
         .from(schedulesTable)
         .leftJoin(teachersTable, eq(schedulesTable.teacherId, teachersTable.id))
@@ -63,13 +76,16 @@ export const getSchedules = async (type: ScheduleEnum, page: number = 1, limit: 
         .from(schedulesTable)
         .where(eq(schedulesTable.type, type));
 
-
     return {
         items: schedulesWithRelations.map(schedule => ({
             ...schedule,
             type: schedule.type as ScheduleEnum,
         })),
-        totalCount: schedule[0].count,
+        meta: {
+            totalCount: schedule[0].count,
+            hasNextPage: (page * limit) < schedule[0].count
+        }
+
     };
 }
 

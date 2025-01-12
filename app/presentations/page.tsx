@@ -6,15 +6,15 @@ import { Props } from "../page";
 
 export default async function Presentations({ searchParams }: Props) {
     const currentPage = +searchParams.page;
-    const assignmentSchedules = await getSchedules(ScheduleEnum.Presentation, currentPage);
+    const presentationsSchedules = await getSchedules(ScheduleEnum.Presentation, currentPage);
     return (
         <div>
             <h1 className="text-xl font-bold text-primary">Presentation Schedule Lists</h1>
             <DataTable
-                data={assignmentSchedules.items}
+                data={presentationsSchedules.items}
                 columns={columns}
                 scheduleTitle={ScheduleEnum.Presentation}
-                totalCount={assignmentSchedules.totalCount}
+                meta={presentationsSchedules.meta}
                 currentPage={currentPage}
             />
         </div>

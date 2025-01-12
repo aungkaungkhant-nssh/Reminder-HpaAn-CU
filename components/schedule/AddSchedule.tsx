@@ -92,12 +92,10 @@ export default function AddSchedule({ scheduleTitle }: { scheduleTitle: Schedule
     return (
         <Dialog open={isOpen}
             onOpenChange={(open) => {
-                if (isEdit && id) {
-                    form.setValue("date", "")
-                    form.setValue("teacherId", "")
-                    form.setValue("subjectId", "")
-                    form.setValue("type", "")
-                }
+                form.setValue("date", "")
+                form.setValue("teacherId", "")
+                form.setValue("subjectId", "")
+                form.setValue("type", "")
                 showModel({
                     isOpen: open,
                     isEdit: false,

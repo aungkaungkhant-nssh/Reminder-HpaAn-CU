@@ -14,7 +14,7 @@ export default async function Assignments({ searchParams }: Props) {
                 data={assignmentSchedules.items}
                 columns={columns}
                 scheduleTitle={ScheduleEnum.Assignment}
-                totalCount={assignmentSchedules.totalCount}
+                meta={assignmentSchedules.meta}
                 currentPage={currentPage}
             />
         </div>

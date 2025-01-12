@@ -14,7 +14,7 @@ export default async function Quizs({ searchParams }: Props) {
                 data={quizSchedules.items}
                 columns={columns}
                 scheduleTitle={ScheduleEnum.Quiz}
-                totalCount={quizSchedules.totalCount}
+                meta={quizSchedules.meta}
                 currentPage={currentPage}
             />
         </div>
