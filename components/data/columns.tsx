@@ -26,17 +26,24 @@ export type Subject = {
     name: string
 }
 
+export type Note = {
+    id: number,
+    task: string
+}
+
 export type Schedule = {
     scheduleId: number,
     date: string,
     type: ScheduleEnum
     teacher: Teacher | null,
     subject: Subject | null,
+    notes: Note[] | null
 
 }
 
 const ActionCell = ({ row }: { row: Row<Schedule> }) => {
-    const { showModel } = useScheduleModelStore()
+
+    const { showModel } = useScheduleModelStore();
     const scheduleId = row.original.scheduleId;
     const handleDelete = async () => {
         try {
@@ -173,7 +180,7 @@ export const columns: ColumnDef<Schedule>[] = [
         header: "Note",
         cell: ({ row }) => {
             return (
-                <AddNote scheduleId={row.original.scheduleId} />
+                <AddNote scheduleId={row.original.scheduleId} notes={row.original.notes} />
             )
         }
     },

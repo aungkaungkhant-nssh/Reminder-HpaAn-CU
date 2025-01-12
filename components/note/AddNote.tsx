@@ -9,36 +9,46 @@ import {
 } from "@/components/ui/dialog";
 import { TrashIcon, EditIcon, NotepadText } from "lucide-react";
 import { Input } from "../ui/input";
-import { useEffect, useTransition } from "react";
+import { useState, useTransition } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { NoteSchema } from "@/types/note";
 import { Form, FormControl, FormDescription, FormField, FormItem, FormMessage } from "../ui/form";
 import SubmitButton from "../ui/submit-button";
-import * as z from 'zod'
-import { createNote } from "@/server/action/note";
+import * as z from 'zod';
 import { handleError } from "@/utils/error-handling";
 import toast from "react-hot-toast";
+import { Note } from "../data/columns";
+import { createNote, deleteNote, updateNote } from "@/server/action/note";
 
 
-export default function AddNote({ scheduleId }: { scheduleId: number }) {
+export default function AddNote({ scheduleId, notes }: { scheduleId: number, notes: Note[] | null }) {
+    const [isEdit, setIsEdit] = useState(false);
     const [isPending, startTransition] = useTransition();
     const form = useForm({
         resolver: zodResolver(NoteSchema),
         defaultValues: {
-            task: ""
+            task: "",
+            id: "",
         }
     })
 
     const onSubmit = (data: z.infer<typeof NoteSchema>) => {
         startTransition(async () => {
+            delete data.id
             try {
-                await createNote({
-                    ...data,
-                    scheduleId
-                })
+                if (form.getValues("id") && isEdit) {
+
+                    await updateNote(+form.getValues("id"), { ...data, scheduleId })
+                } else {
+                    await createNote({
+                        ...data,
+                        scheduleId
+                    })
+                }
+
                 form.setValue("task", "")
-                toast.success(`Success ${false ? "Update" : "add"} task`)
+                // toast.success(`Success ${form.getValues("id") && isEdit ? "Update" : "add"} task`)
             } catch (err) {
                 handleError(err);
             }
@@ -46,12 +56,21 @@ export default function AddNote({ scheduleId }: { scheduleId: number }) {
         })
     }
 
-    useEffect(() => {
-        console.log("work")
-    }, [scheduleId])
+    const handleDelete = async (noteId: number) => {
+        try {
+            await deleteNote(noteId);
+            toast.success("Success Delete Note")
+        } catch {
+            toast.error("Unexpected Error occur")
+        }
+    }
+
 
     return (
-        <Dialog>
+        <Dialog onOpenChange={() => {
+            form.setValue("task", "")
+            form.setValue("id", "")
+        }}>
             <DialogTrigger asChild>
                 <NotepadText className="text-primary cursor-pointer" />
             </DialogTrigger>
@@ -60,28 +79,44 @@ export default function AddNote({ scheduleId }: { scheduleId: number }) {
                     <DialogTitle>Notes</DialogTitle>
                 </DialogHeader>
                 <div className="grid gap-4 py-4">
-                    <ul className="space-y-4 pl-6 text-gray-800">
-                        <li className="hover:text-primary transition-colors duration-200 flex gap-2 items-center">
-                            <span className="text-sm font-medium group-hover:text-primary">
-                                helo
-                            </span>
-                            <div className="flex gap-1">
-                                <button
-                                    aria-label="Edit"
-                                    className="flex items-center justify-center w-8 h-8 rounded-full bg-gray-100 hover:bg-blue-100 transition duration-300 outline-none"
-                                >
-                                    <EditIcon size={18} className="text-blue-500" />
-                                </button>
-                                <button
-                                    aria-label="Delete"
-                                    className="flex items-center justify-center w-8 h-8 rounded-full bg-gray-100 hover:bg-red-100 transition duration-300"
-                                >
-                                    <TrashIcon size={18} className="text-red-500" />
-                                </button>
-                            </div>
-                        </li>
+                    {
+                        notes?.length ? (
+                            <ul className="space-y-4 pl-6 text-gray-800">
+                                {
+                                    notes?.map((note) => (
+                                        <li key={note.id} className="hover:text-primary transition-colors duration-200 flex gap-2 items-center">
+                                            <span className="text-sm font-medium group-hover:text-primary">
+                                                {note.task}
+                                            </span>
+                                            <div className="flex gap-1">
+                                                <button
+                                                    aria-label="Edit"
+                                                    className="flex items-center justify-center w-8 h-8 rounded-full bg-gray-100 hover:bg-blue-100 transition duration-300 outline-none"
+                                                    onClick={() => {
+                                                        form.setValue("task", note.task);
+                                                        form.setValue("id", note.id.toString())
+                                                        setIsEdit(true)
+                                                    }}
+                                                >
+                                                    <EditIcon size={18} className="text-blue-500" />
+                                                </button>
+                                                <button
+                                                    aria-label="Delete"
+                                                    className="flex items-center justify-center w-8 h-8 rounded-full bg-gray-100 hover:bg-red-100 transition duration-300"
+                                                    onClick={() => handleDelete(note.id)}
+                                                >
+                                                    <TrashIcon size={18} className="text-red-500" />
+                                                </button>
+                                            </div>
+                                        </li>
+                                    ))
+                                }
+                            </ul>
+                        ) : (
+                            <p className="text-gray-600">No tasks available. Add your first task!</p>
+                        )
+                    }
 
-                    </ul>
                 </div>
                 <DialogFooter className="  gap-2">
                     <Form {...form} >
@@ -101,7 +136,7 @@ export default function AddNote({ scheduleId }: { scheduleId: number }) {
                             >
                             </FormField>
                             <div className="w-1/4">
-                                <SubmitButton text="Add Task" isPending={isPending} />
+                                <SubmitButton text={`${isEdit ? "Update " : "Add "} Task`} isPending={isPending} />
                             </div>
                         </form>
 
@@ -112,3 +147,5 @@ export default function AddNote({ scheduleId }: { scheduleId: number }) {
         </Dialog>
     )
 }
+
+

@@ -34,42 +34,17 @@ export const updateSchedule = async (id: number, data: NewSchedule) => {
 export const getSchedules = async (type: ScheduleEnum, page: number = 1, limit: number = LIMIT): Promise<{ items: Schedule[]; meta: { totalCount: number, hasNextPage: boolean } }> => {
     const offset = (page - 1) * limit;
 
-    const data = await db.query.schedulesTable.findMany({
+    const schedulesWithRelations = await db.query.schedulesTable.findMany({
+        where: eq(schedulesTable.type, type),
+        orderBy: asc(schedulesTable.date),
+        limit: limit,
+        offset: offset,
         with: {
             teacher: true,
             subject: true,
             notes: true
         }
-    })
-
-    console.log(data)
-
-    const schedulesWithRelations = await db
-        .select({
-            scheduleId: schedulesTable.id,
-            date: schedulesTable.date,
-            type: schedulesTable.type,
-            teacher: {
-                id: teachersTable.id,
-                name: teachersTable.name,
-                phone: teachersTable.phone,
-                academicYearId: teachersTable.academicYearId,
-            },
-            subject: {
-                id: subjectsTable.id,
-                code: subjectsTable.code,
-                name: subjectsTable.name,
-            },
-
-
-        })
-        .from(schedulesTable)
-        .leftJoin(teachersTable, eq(schedulesTable.teacherId, teachersTable.id))
-        .leftJoin(subjectsTable, eq(schedulesTable.subjectId, subjectsTable.id))
-        .where(eq(schedulesTable.type, type))
-        .orderBy(asc(schedulesTable.date))
-        .limit(limit)
-        .offset(offset);
+    });
 
     const schedule = await db
         .select({ count: count() })
@@ -78,8 +53,12 @@ export const getSchedules = async (type: ScheduleEnum, page: number = 1, limit: 
 
     return {
         items: schedulesWithRelations.map(schedule => ({
-            ...schedule,
+            scheduleId: schedule.id,
+            date: schedule.date,
             type: schedule.type as ScheduleEnum,
+            teacher: schedule.teacher,
+            subject: schedule.subject,
+            notes: schedule.notes,
         })),
         meta: {
             totalCount: schedule[0].count,
@@ -128,3 +107,4 @@ export const deleteSchedule = async (id: number) => {
         throw new Error(JSON.stringify({ type: "UNKNOWN_ERROR", message: err.detail || "An unexpected error occurred." }));
     }
 }
+
