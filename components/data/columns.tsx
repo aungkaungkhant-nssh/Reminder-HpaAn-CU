@@ -48,9 +48,9 @@ const ActionCell = ({ row }: { row: Row<Schedule> }) => {
     const handleDelete = async () => {
         try {
             await deleteSchedule(scheduleId);
-            toast("Success Delete Schedule")
+            toast.success("Success Delete Schedule")
         } catch {
-            toast("Unexpected Error occur")
+            toast.error("Unexpected Error occur")
         }
     }
     return (
