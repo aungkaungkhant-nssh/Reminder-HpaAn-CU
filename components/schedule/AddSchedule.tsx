@@ -11,7 +11,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from 'zod'
 import { FormControl, FormField, FormItem, FormMessage, Form } from "../ui/form";
-import { useEffect, useTransition } from "react";
+import { useCallback, useEffect, useTransition } from "react";
 import toast, { Toaster } from 'react-hot-toast';
 import SubmitButton from "../ui/submit-button"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
@@ -72,7 +72,7 @@ export default function AddSchedule({ scheduleTitle }: { scheduleTitle: Schedule
         })
     };
 
-    const checkSchedule = async (isEdit: boolean, id: number) => {
+    const checkSchedule = useCallback(async (isEdit: boolean, id: number) => {
         if (isEdit) {
             const schedule = await getSchedule(id);
             if (schedule.length) {
@@ -82,12 +82,13 @@ export default function AddSchedule({ scheduleTitle }: { scheduleTitle: Schedule
                 form.setValue("type", schedule[0].type)
             }
         }
-    }
+    }, [form]);
+
     useEffect(() => {
         if (isEdit && id) {
             checkSchedule(isEdit, id)
         }
-    }, [isEdit, id])
+    }, [isEdit, id, checkSchedule])
 
     return (
         <Dialog open={isOpen}

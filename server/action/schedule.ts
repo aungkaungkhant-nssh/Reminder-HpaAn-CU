@@ -32,40 +32,46 @@ export const updateSchedule = async (id: number, data: NewSchedule) => {
 }
 
 export const getSchedules = async (type: ScheduleEnum, page: number = 1, limit: number = LIMIT): Promise<{ items: Schedule[]; meta: { totalCount: number, hasNextPage: boolean } }> => {
-    const offset = (page - 1) * limit;
+    try {
+        const offset = (page - 1) * limit;
 
-    const schedulesWithRelations = await db.query.schedulesTable.findMany({
-        where: eq(schedulesTable.type, type),
-        orderBy: asc(schedulesTable.date),
-        limit: limit,
-        offset: offset,
-        with: {
-            teacher: true,
-            subject: true,
-            notes: true
-        }
-    });
+        const schedulesWithRelations = await db.query.schedulesTable.findMany({
+            where: eq(schedulesTable.type, type),
+            orderBy: asc(schedulesTable.date),
+            limit: limit,
+            offset: offset,
+            with: {
+                teacher: true,
+                subject: true,
+                notes: true
+            }
+        });
 
-    const schedule = await db
-        .select({ count: count() })
-        .from(schedulesTable)
-        .where(eq(schedulesTable.type, type));
+        const schedule = await db
+            .select({ count: count() })
+            .from(schedulesTable)
+            .where(eq(schedulesTable.type, type));
 
-    return {
-        items: schedulesWithRelations.map(schedule => ({
-            scheduleId: schedule.id,
-            date: schedule.date,
-            type: schedule.type as ScheduleEnum,
-            teacher: schedule.teacher,
-            subject: schedule.subject,
-            notes: schedule.notes,
-        })),
-        meta: {
-            totalCount: schedule[0].count,
-            hasNextPage: (page * limit) < schedule[0].count
-        }
+        return {
+            items: schedulesWithRelations.map(schedule => ({
+                scheduleId: schedule.id,
+                date: schedule.date,
+                type: schedule.type as ScheduleEnum,
+                teacher: schedule.teacher,
+                subject: schedule.subject,
+                notes: schedule.notes,
+            })),
+            meta: {
+                totalCount: schedule[0].count,
+                hasNextPage: (page * limit) < schedule[0].count
+            }
 
-    };
+        };
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (err: any) {
+        throw new Error(JSON.stringify({ type: "UNKNOWN_ERROR", message: err.detail || "An unexpected error occurred." }));
+    }
+
 }
 
 export const getSchedule = async (id: number) => {

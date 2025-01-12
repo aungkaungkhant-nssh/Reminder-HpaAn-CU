@@ -1,16 +1,16 @@
+
 import { columns } from "@/components/data/columns";
 import { DataTable } from "@/components/data/data-table";
 import { getSchedules } from "@/server/action/schedule";
 import { ScheduleEnum } from "@/utils/enum/Schedule";
 
 export interface Props {
-  searchParams: {
-    [key: string]: string
-  }
+  searchParams?: Promise<{ [key: string]: string | string[] | undefined }>;
 }
 
-export default async function Home({ searchParams }: Props) {
-  const currentPage = +searchParams?.page || 1;
+export default async function Page({ searchParams }: Props) {
+  const params = await searchParams;
+  const currentPage = +(params?.page || 1)
   const tutorialSchedules = await getSchedules(ScheduleEnum.Tutorial, currentPage);
 
   return (

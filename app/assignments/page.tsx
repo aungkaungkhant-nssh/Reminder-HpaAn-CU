@@ -4,8 +4,10 @@ import { getSchedules } from "@/server/action/schedule";
 import { ScheduleEnum } from "@/utils/enum/Schedule";
 import { Props } from "../page";
 
+
 export default async function Assignments({ searchParams }: Props) {
-    const currentPage = +searchParams.page;
+    const params = await searchParams;
+    const currentPage = +(params?.page || 1)
     const assignmentSchedules = await getSchedules(ScheduleEnum.Assignment, currentPage);
     return (
         <div>
