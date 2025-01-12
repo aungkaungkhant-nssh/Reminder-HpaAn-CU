@@ -48,7 +48,7 @@ export const notesTable = pgTable("notes", {
     task: varchar({ length: 255 }).notNull(),
     scheduleId: integer()
         .notNull()
-        .references(() => schedulesTable.id),
+        .references(() => schedulesTable.id, { onDelete: "cascade" }),
 });
 
 // Relationships for schedulesTable
