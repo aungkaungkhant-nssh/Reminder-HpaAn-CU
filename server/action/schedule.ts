@@ -74,6 +74,16 @@ export const getSchedules = async (type: ScheduleEnum, page: number = 1, limit: 
 
 }
 
+export const getAllSchedules = async () => {
+    return db.query.schedulesTable.findMany({
+        with: {
+            teacher: true,
+            subject: true,
+            notes: true
+        }
+    });
+}
+
 export const getSchedule = async (id: number) => {
     try {
         const schedule = await db.select({
