@@ -19,3 +19,13 @@ export const createReminder = async (data: NewReminder) => {
         throw new Error(JSON.stringify({ type: "UNKNOWN_ERROR", message: err.detail || "An unexpected error occurred." }));
     }
 }
+
+export const getReminders = async () => {
+    try {
+        const reminders = await db.query.remindersTable.findMany();
+        return reminders
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (err: any) {
+        throw new Error(JSON.stringify({ type: "UNKNOWN_ERROR", message: err.detail || "An unexpected error occurred." }));
+    }
+}
