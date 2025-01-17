@@ -12,9 +12,11 @@ export async function GET() {
 
     schedules.map(item => {
         const before2Days = subDays(item.date, 2);
-
+        console.log("one")
         if (isSameDay(before2Days, today)) {
+            console.log("two")
             reminders.map(async (reminder) => {
+                console.log("three")
                 const template = ReminderEmailTemplate(reminder.email, { ...item, scheduleId: item.id, type: item.type as ScheduleEnum });
                 await sendingEmail(template);
             })
