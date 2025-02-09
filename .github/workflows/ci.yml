@@ -9,6 +9,11 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    env:
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
+      GOOGLE_EMAIL: ${{ secrets.GOOGLE_EMAIL }}
+      GOOGLE_PASS: ${{ secrets.GOOGLE_PASS }}
+      
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
