@@ -23,7 +23,7 @@ jobs:
           node-version: 21
 
       - name: Verify environment variables
-        run: echo "DATABASE_URL is set to ${DATABASE_URL::10}*******"
+        run: echo "${{ secrets.DATABASE_URL }}"
 
       - name: Install dependencies
         run: npm install
