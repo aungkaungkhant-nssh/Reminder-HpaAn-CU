@@ -6,17 +6,15 @@ on:
   pull_request:
     branches:
       - main
+
 jobs:
   build:
     runs-on: ubuntu-latest
-    - name: Debug DATABASE_URL
-      run: echo "DATABASE_URL starts with ${DATABASE_URL::10}..."
-      
     env:
       DATABASE_URL: ${{ secrets.DATABASE_URL }}
       GOOGLE_EMAIL: ${{ secrets.GOOGLE_EMAIL }}
       GOOGLE_PASS: ${{ secrets.GOOGLE_PASS }}
-      
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
@@ -28,6 +26,9 @@ jobs:
 
       - name: Install dependencies
         run: npm install
+
+      - name: Debug DATABASE_URL
+        run: echo "DATABASE_URL starts with ${DATABASE_URL::10}..."
 
       - name: Run lint
         run: npm run lint
