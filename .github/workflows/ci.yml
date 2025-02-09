@@ -6,31 +6,30 @@ on:
   pull_request:
     branches:
       - main
+
 jobs:
   build:
     runs-on: ubuntu-latest
     env:
       DATABASE_URL: ${{ secrets.DATABASE_URL }}
-      GOOGLE_EMAIL: ${{ secrets.GOOGLE_EMAIL }}
-      GOOGLE_PASS: ${{ secrets.GOOGLE_PASS }}
-      
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
-      
+
       - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
           node-version: 21
+
+      - name: Verify environment variables
+        run: echo "DATABASE_URL is set to ${DATABASE_URL::10}*******"
 
       - name: Install dependencies
         run: npm install
 
       - name: Run lint
         run: npm run lint
-
-      # - name: Run tests
-      #   run: npm run test
 
       - name: Build project
         run: npm run build
