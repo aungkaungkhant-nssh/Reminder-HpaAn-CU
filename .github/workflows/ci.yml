@@ -32,7 +32,7 @@ jobs:
         run: npm install
 
       - name: Debug DATABASE_URL
-        run: echo "DATABASE_URL starts with ${DATABASE_URL::10}..."
+        run: echo "DATABASE_URL starts with ${DATABASE_URL}..."
 
       - name: Run lint
         run: npm run lint
