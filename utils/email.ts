@@ -45,7 +45,6 @@ async function sendingEmail(emailTemplate: nodemailer.SendMailOptions) {
                 console.log('Message sent: %s', error);
                 return reject(false);
             }
-            console.log('Message sent: %s', info.messageId);
             resolve(true);
         });
     })
